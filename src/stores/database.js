@@ -1,5 +1,12 @@
 import { defineStore } from "pinia";
-import { doc, updateDoc, onSnapshot, setDoc, getDoc, serverTimestamp } from "firebase/firestore";
+import {
+  doc,
+  updateDoc,
+  onSnapshot,
+  setDoc,
+  getDoc,
+  serverTimestamp,
+} from "firebase/firestore";
 import { db } from "src/boot/firebase"; // Firestore configuration
 
 export const useDatabaseStore = defineStore("database", {
@@ -15,8 +22,9 @@ export const useDatabaseStore = defineStore("database", {
           name,
           email,
           rol,
-          date: serverTimestamp(), // Automatically sets the current timestamp
+          date: new Date().getTime(), // Automatically sets the current timestamp
           photo,
+          phone: "000-000-0000",
         });
         console.log("User data successfully saved!");
       } catch (error) {
@@ -25,39 +33,28 @@ export const useDatabaseStore = defineStore("database", {
     },
     async fetchUserData(uid) {
       try {
-        const userDoc = await getDoc(doc(db, 'users', uid)) // Assume your collection is 'users'
+        const userDoc = await getDoc(doc(db, "users", uid)); // Assume your collection is 'users'
         if (userDoc.exists()) {
-          this.userData = userDoc.data() // Store the user data in the state
+          this.userData = userDoc.data(); // Store the user data in the state
         } else {
-          console.error('No such document!')
+          console.error("No such document!");
         }
       } catch (error) {
-        console.error('Error fetching user data:', error)
+        console.error("Error fetching user data:", error);
       }
     },
     async UpdateUserData(field, val) {
       this.loadingUser = true;
+      const keyUpdate = Object.keys(this.userData).find(
+        (key) => this.userData[key] === field
+      );
       try {
-        //const docRefAgent = doc(db, "users", where('admin', '==', this.documents.id) );
         const docRef = doc(db, "users", this.userData.uid);
-        switch (field) {
-          case this.userData.name:
-            await updateDoc(docRef, {
-              name: val,
-            });
-            break;
-
-          case this.userData.photo:
-            await updateDoc(docRef, {
-              photo: val,
-            });
-            break;
-          default:
-            break;
-        }
-
+        await updateDoc(docRef, {
+          [keyUpdate]: val,
+        });
         onSnapshot(docRef, (userDoc) => {
-          this.userData = userDoc.data()
+          this.userData = userDoc.data();
         });
       } catch (error) {
         console.log(error);

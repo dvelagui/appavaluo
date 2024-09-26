@@ -27,7 +27,7 @@ const routes = [
     children: [
       {
         path: "",
-        component: () => import("pages/IndexPage.vue"),
+        component: () => import("src/pages/DashboardPage.vue"),
         beforeEnter: requireAuth,
       },
       {
