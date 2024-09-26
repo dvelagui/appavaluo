@@ -7,7 +7,7 @@
   <section class="q-px-xl row wrap items-start justify-start q-gutter-md">
 
     <CardsHome card-img="fa-solid fa-file" card-title="Datos personales" card-text="Actualiza tu información cuando lo necesites."
-      card-url="/mi-cuenta" card-btn="Ver perfil" />
+      card-url="mi-cuenta" card-btn="Ver perfil" />
 
   </section>
 </template>
