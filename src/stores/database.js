@@ -7,7 +7,7 @@ import {
   getDoc,
   serverTimestamp,
 } from "firebase/firestore";
-import { db } from "src/boot/firebase"; // Firestore configuration
+import { db, auth } from "src/boot/firebase"; // Firestore configuration
 
 export const useDatabaseStore = defineStore("database", {
   state: () => ({
@@ -15,18 +15,18 @@ export const useDatabaseStore = defineStore("database", {
   }),
   actions: {
     // Save user data to Firestore
-    async saveUserData(uid, { name, email, rol, photo }) {
+    async saveUserData(uid, { name, email, role, photo, admin }) {
       try {
         await setDoc(doc(db, "users", uid), {
           uid,
+          admin: admin ? admin : "Wg4R2D1YkIaGSf2nCWHRQsfreIy1",
           name,
           email,
-          rol,
+          role,
           date: new Date().getTime(), // Automatically sets the current timestamp
           photo,
           phone: "000-000-0000",
         });
-        console.log("User data successfully saved!");
       } catch (error) {
         console.error("Error saving user data: ", error);
       }

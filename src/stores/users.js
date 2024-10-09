@@ -11,35 +11,21 @@ import {
 } from "firebase/auth";
 import { doc, getDoc } from "firebase/firestore";
 import { useDatabaseStore } from "./database";
+import { useEmailStore } from "./email";
 
 export const useUserStore = defineStore("user", {
   state: () => ({
     user: null,
     userData: null,
+    isCreatingUser: false,
+    originalUser: null,
     loading: false,
     error: null,
   }),
 
   actions: {
-    async initAuth() {
-      const auth = getAuth()
-      // Listen for authentication state changes
-      onAuthStateChanged(auth, (user) => {
-        if (user) {
-          // If user is logged in, store the user object in Pinia store
-          this.user = {
-            uid: user.uid,
-            email: user.email,
-            name: user.displayName,
-            photo: user.photoURL
-          }
-        } else {
-          // If no user is logged in, reset user state
-          this.user = null
-        }
-      })
-    },
     async login(email, password, router) {
+      const databaseStore = useDatabaseStore();
       this.loading = true;
       this.error = null;
       try {
@@ -52,8 +38,8 @@ export const useUserStore = defineStore("user", {
         this.user = userCredential.user;
 
         // Load user data from Firestore
-        await this.fetchUserData(this.user.uid);
-
+        await databaseStore.fetchUserData(this.user.uid);
+        // redirect to home
         router.push("/");
       } catch (err) {
         this.error = err.message;
@@ -62,32 +48,69 @@ export const useUserStore = defineStore("user", {
       }
     },
 
-    async register(email, password, name, rol, router) {
+    async register(
+      email,
+      password,
+      name,
+      role,
+      router,
+      isCreatingUser,
+      passwordAdmin
+    ) {
+      const databaseStore = useDatabaseStore();
+      const emailStore = useEmailStore();
       this.loading = true;
       this.error = null;
       try {
+        this.isCreatingUser = isCreatingUser;
+
+        if (this.isCreatingUser) {
+          this.originalUser = {
+            uid: auth.currentUser.uid,
+            name: databaseStore.userData.name,
+            email: auth.currentUser.email,
+            password: passwordAdmin,
+          };
+        }
+
         const userCredential = await createUserWithEmailAndPassword(
           auth,
           email,
           password
         );
-        this.user = userCredential.user;
-
-        const databaseStore = useDatabaseStore();
         const photo =
           "https://firebasestorage.googleapis.com/v0/b/appvaluo-pwa.appspot.com/o/profile%2Fprofile-default.png?alt=media&token=f864cebc-d5a5-406c-9426-390d0a738a2d"; // Placeholder for user photo
 
         // Save user data to Firestore
-        await databaseStore.saveUserData(this.user.uid, {
+        await databaseStore.saveUserData(userCredential.user.uid, {
           name,
           email,
-          rol,
+          role,
           photo,
+          admin: this.originalUser ? this.originalUser.uid : this.originalUser,
         });
-
         // Load user data after registration
-        this.userData = { email, name, rol, photo };
-        router.push("/");
+        if (databaseStore.userData) {
+          await signInWithEmailAndPassword(
+            auth,
+            this.originalUser.email,
+            this.originalUser.password
+          );
+          await emailStore.newUserInspector({
+            name,
+            email,
+            password,
+            role,
+            admin: this.originalUser.name,
+            contact: this.originalUser.email,
+          });
+          await databaseStore.fetchUserData(this.originalUser.uid);
+          this.originalUser = null;
+          router.push(router.currentRoute.value.path);
+        } else {
+          await databaseStore.fetchUserData(userCredential.user.uid);
+          router.push("/");
+        }
       } catch (err) {
         this.error = err.message;
       } finally {
@@ -96,6 +119,7 @@ export const useUserStore = defineStore("user", {
     },
 
     async loginWithGoogle(router) {
+      const databaseStore = useDatabaseStore();
       this.loading = true;
       this.error = null;
       try {
@@ -113,20 +137,24 @@ export const useUserStore = defineStore("user", {
 
         // If user data doesn't exist, create a new entry in Firestore
         if (!userDoc.exists()) {
-          const databaseStore = useDatabaseStore();
-          const rol = "user"; // Default role for Google users (adjust as needed)
+          const role = "user"; // Default rolee for Google users (adjust as needed)
           await databaseStore.saveUserData(this.user.uid, {
             name,
             email,
-            rol,
+            role,
             photo,
+            admin: false,
           });
+          // Load user data from Firestore
+          await databaseStore.fetchUserData(this.user.uid);
+          // redirect to home
+          router.push("/");
+        } else {
+          // Load user data from Firestore
+          await databaseStore.fetchUserData(this.user.uid);
+          // redirect to home
+          router.push("/");
         }
-
-        // Load user data from Firestore
-        await this.fetchUserData(this.user.uid);
-
-        router.push("/");
       } catch (err) {
         this.error = err.message;
       } finally {
@@ -149,17 +177,5 @@ export const useUserStore = defineStore("user", {
         this.loading = false;
       }
     },
-
-    async fetchUserData(uid) {
-      try {
-        const userDoc = await getDoc(doc(db, "users", uid));
-        if (userDoc.exists()) {
-          this.userData = userDoc.data();
-        }
-      } catch (err) {
-        console.error("Error fetching user data: ", err);
-      }
-    },
-
   },
 });
