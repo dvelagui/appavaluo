@@ -2,7 +2,7 @@
 <template>
   <div v-ripple="true" class="column justify-between items-center">
     <q-list>
-    <AvatarAccount/>
+      <AvatarAccount />
       <q-item :disable="plan" class="q-mt-md" clickable @click="router.push('/')">
         <q-item-section avatar>
           <q-icon name="fa-sharp fa-solid fa-house" />
@@ -45,8 +45,7 @@
         </q-item-section>
       </q-item>
 
-      <q-item  clickable
-        @click="router.push(`/PQRS`)">
+      <q-item clickable @click="router.push(`/PQRS`)">
         <q-item-section avatar>
           <q-icon name="fa-regular fa-lightbulb" />
         </q-item-section>
@@ -74,8 +73,6 @@ const useDatabase = useDatabaseStore();
 const userStore = useUserStore();
 const router = useRouter();
 const plan = ref(false);
-
-
 
 const logOut = async () => {
   try {

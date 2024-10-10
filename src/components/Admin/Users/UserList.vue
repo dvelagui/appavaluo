@@ -121,8 +121,6 @@ const updateField = async (field, value, userdata) => {
   });
 };
 
-
-
 // Export table to CSV
 const wrapCsvValue = (val) => {
   let formatted = val == null ? '' : String(val);

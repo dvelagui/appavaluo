@@ -20,14 +20,11 @@ export default boot(async ({ app, store }) => {
 
   onAuthStateChanged(auth, async (user) => {
     if (user) {
-      databaseStore.userData = {
-        uid: user.uid,
-        email: user.email,
-        name: user.displayName,
-        photo: user.photoURL,
-      };
       // Fetch user data from Firestore based on UID
+      console.log("empezo carga");
+
       await databaseStore.fetchUserData(user.uid);
+      console.log("terminao carga");
     } else if (!user) {
       databaseStore.userData = null; // Clear user data on logout
     }

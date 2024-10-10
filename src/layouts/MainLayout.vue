@@ -24,11 +24,9 @@
 </template>
 
 <script setup>
-import { ref, computed } from 'vue'
+import { ref, computed, watch } from 'vue'
 import EssentialLink from 'components/EssentialLink.vue'
 import { useDatabaseStore } from 'src/stores/database';
-
-// Access the user store and router
 const useDatabase = useDatabaseStore();
 
 const leftDrawerOpen = ref(false)

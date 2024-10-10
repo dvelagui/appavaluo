@@ -61,7 +61,7 @@
 </template>
 
 <script setup>
-import UserList from './User-List.vue';
+import UserList from './UserList.vue';
 import { useQuasar, QSpinnerGears } from 'quasar'
 import { useUserStore } from "src/stores/users";
 import { useRouter, useRoute } from 'vue-router';
