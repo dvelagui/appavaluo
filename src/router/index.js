@@ -19,9 +19,9 @@ export default route(function () {
     if (to.meta.requiresAuth) {
       if (user) {
         if (to.meta.role && to.meta.role !== useDatabase.userData?.role) {
-          next("/");
-        } else {
           next();
+        } else {
+          next("/");
         }
       } else {
         next("/inicio-sesion");

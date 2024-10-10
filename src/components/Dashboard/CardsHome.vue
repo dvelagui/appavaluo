@@ -6,7 +6,7 @@
       <p class="card-home_p card-text">
         {{ cardText }}
       </p>
-      <q-btn class="q-mt-lg" color="primary" :label="cardBtn" @click="router.push(toUrl)"></q-btn>
+      <q-btn class="q-mt-lg" color="info" :label="cardBtn" @click="router.push(toUrl)"></q-btn>
     </div>
   </q-card>
 </template>
@@ -69,10 +69,10 @@ onMounted(() => {
 .q-icon {
   font-size: 24px;
   color: $primary;
-  background-color: #f092d0;
+  background-color: var(--q-primarysoft);
   padding: 10px;
   border-radius: 50%;
-  background: #F9E6F1;
+  background: var(--q-primarysoft);
   width: 100%;
   max-width: 40px;
   height: 40px;

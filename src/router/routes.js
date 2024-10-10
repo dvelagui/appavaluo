@@ -46,9 +46,9 @@ const routes = [
       },
       {
         path: "agregar-usuario",
-        component: () => import("components/Admin/Users/AddUser.vue"),
+        component: () => import("src/components/Admin/Users/Add-User.vue"),
         beforeEnter: requireAuth,
-        meta: { requiresAuth: true, role: "admin" },
+        meta: { role: "admin" },
       },
     ],
   },

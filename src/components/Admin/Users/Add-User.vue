@@ -1,9 +1,12 @@
 <template>
   <div class="q-pa-md items-center justify-center">
+    <div class="q-px-sm q-py-xl column items-start justify-start">
+      <h4 class="title text-center">Registrar Usuario</h4>
+    </div>
     <div class="col-12">
       <q-card class=" my-card" flat>
         <div class="row items-center justify-between">
-          <div class="col-12 q-pa-lg">
+          <div class="col-12 q-px-lsm">
             <label class="label-invitado q-mb-md">Escriba datos del nuevo inspector:</label>
             <div class="q-mt-md">
 
@@ -29,38 +32,15 @@
                   ]" />
                 </div>
                 <div class="col-12 col-md-2">
-                  <q-btn label="Crear Usuario" type="submit" color="primary" />
+                  <q-btn label="Crear Usuario" type="submit" color="info" />
                 </div>
               </q-form>
-
             </div>
           </div>
         </div>
-
-        <!--  <q-markup-table>
-          <thead>
-            <tr>
-              <th class="text-left">Fecha de ingreso</th>
-              <th class="text-left">Nombre</th>
-              <th class="text-left">Correo electrónico</th>
-              <th class="text-center">Teléfono</th>
-              <th class="text-center">Perfil</th>
-              <th class="text-center">Estado</th>
-              <th class="text-center">Acciones</th>
-            </tr>
-          </thead>
-          <tbody>
-            <tr v-for="agent in useDatabase.documentsAgent" :key="agent.id">
-              <UsuariosLista :id="agent.uid" :date="agent.date" :name="agent.nickname" :email="agent.email"
-                :phone="agent.phone" :rol="agent.rol" />
-            </tr>
-          </tbody>
-        </q-markup-table> -->
       </q-card>
     </div>
-    <div class="q-pa-lg flex flex-center">
-      <q-pagination v-model="current" :max="1" />
-    </div>
+    <UserList />
   </div>
   <q-dialog v-model="promptPassword" persistent>
     <q-card style="min-width: 350px">
@@ -81,7 +61,7 @@
 </template>
 
 <script setup>
-
+import UserList from './User-List.vue';
 import { useQuasar, QSpinnerGears } from 'quasar'
 import { useUserStore } from "src/stores/users";
 import { useRouter, useRoute } from 'vue-router';
@@ -143,18 +123,6 @@ const onSubmit = async () => {
 </script>
 
 <style lang="scss" scoped>
-.title {
-  font-family: 'Source Sans Pro';
-  font-style: normal;
-  font-weight: 600;
-  font-size: 48px;
-  line-height: 100%;
-  letter-spacing: -0.01em;
-  color: #282A33;
-  margin-top: 48px;
-  margin-bottom: 48px;
-}
-
 .label-invitado {
   font-family: "Source Sans Pro";
   font-style: normal;

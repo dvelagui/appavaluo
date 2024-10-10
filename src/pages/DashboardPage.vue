@@ -6,9 +6,9 @@
   </div>
   <section class="q-px-xl row wrap items-start justify-start q-gutter-md">
 
-    <CardsHome card-img="fa-solid fa-file" card-title="Datos personales"
+    <CardsHome card-img="fa-solid fa-user" card-title="Datos personales"
       card-text="Actualiza tu información cuando lo necesites." card-url="mi-cuenta" card-btn="Ver perfil" />
-    <CardsHome v-show="userData?.role == 'admin'" card-img="fa-solid fa-file" card-title="Agregar Inspector"
+    <CardsHome v-show="userData?.role == 'admin'" card-img="fa-solid fa-users" card-title="Agregar Inspector"
       card-text="Agrega los inspectores o supervisores de tu empresa." card-url="agregar-usuario" card-btn="Agregar" />
 
   </section>

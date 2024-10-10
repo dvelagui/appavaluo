@@ -7,8 +7,8 @@
         <q-icon name="mdi-pencil" />
         <q-popup-edit v-slot="scope" v-model="name" :validate="val => val.length > 5">
           <q-input v-model="scope.value" autofocus dense :model-value="scope.value" hint="Su Nombre de Usuario" :rules="[
-    val => scope.validate(val) || 'Por favor usar más de 5 caracteres'
-  ]">
+            val => scope.validate(val) || 'Por favor usar más de 5 caracteres'
+          ]">
             <template #after>
               <q-btn flat dense color="negative" icon="cancel" @click.stop.prevent="scope.cancel" />
 
@@ -33,7 +33,7 @@ const useDatabase = useDatabaseStore();
 const userData = computed(() => useDatabase.userData)
 
 watch(name, () => {
-  useDatabase.UpdateUserData(userData.value?.name, name.value)
+  useDatabase.UpdateUserData(userData.value?.name, name.value, userData.value?.uid, userData.value)
 })
 
 </script>

@@ -34,7 +34,7 @@ const useDatabase = useDatabaseStore();
 const userData = computed(() => useDatabase.userData)
 
 watch(phone, () => {
-  useDatabase.UpdateUserData(userData.value?.phone, phone.value)
+  useDatabase.UpdateUserData(userData.value?.phone, phone.value, userData.value?.uid, userData.value)
 })
 
 </script>

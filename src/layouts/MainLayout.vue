@@ -13,8 +13,8 @@
     </q-header>
 
     <!-- Show q-drawer only if user is logged in -->
-    <q-drawer v-if="isLoggedIn" show-if-above v-model="leftDrawerOpen" side="left" >
-        <EssentialLink  />
+    <q-drawer v-if="isLoggedIn" show-if-above v-model="leftDrawerOpen" side="left">
+      <EssentialLink />
     </q-drawer>
 
     <q-page-container>
@@ -26,14 +26,13 @@
 <script setup>
 import { ref, computed } from 'vue'
 import EssentialLink from 'components/EssentialLink.vue'
-import { useUserStore } from 'src/stores/users'
-import { useRouter } from 'vue-router'
+import { useDatabaseStore } from 'src/stores/database';
 
 // Access the user store and router
-const userStore = useUserStore()
+const useDatabase = useDatabaseStore();
 
 const leftDrawerOpen = ref(false)
-const isLoggedIn = computed(() => !!userStore.user)
+const isLoggedIn = computed(() => !!useDatabase.userData)
 
 // Function to toggle the drawer
 const toggleLeftDrawer = () => {

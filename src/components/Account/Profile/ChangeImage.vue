@@ -59,7 +59,7 @@ const uploadAvatar = () => {
     progress1.value = 0.5
     getDownloadURL(storageReference(storage, snapshot.metadata.fullPath)).then((url) => {
       progress1.value = 0.8
-      useDatabase.UpdateUserData(userData.value.photo, url)
+      useDatabase.UpdateUserData(userData.value.photo, url, userData.value?.uid, userData.value)
       setTimeout(() => {
         progress1.value = 1
         progress.value = false;

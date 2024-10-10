@@ -19,8 +19,8 @@ export default boot(async ({ app, store }) => {
   // Firebase onAuthStateChanged to manage user session
 
   onAuthStateChanged(auth, async (user) => {
-    if (user && !userStore.isCreatingUser) {
-      userStore.user = {
+    if (user) {
+      databaseStore.userData = {
         uid: user.uid,
         email: user.email,
         name: user.displayName,
@@ -29,7 +29,6 @@ export default boot(async ({ app, store }) => {
       // Fetch user data from Firestore based on UID
       await databaseStore.fetchUserData(user.uid);
     } else if (!user) {
-      userStore.user = null;
       databaseStore.userData = null; // Clear user data on logout
     }
   });

@@ -88,6 +88,9 @@ export const useUserStore = defineStore("user", {
           role,
           photo,
           admin: this.originalUser ? this.originalUser.uid : this.originalUser,
+          adminEmail: this.originalUser
+            ? this.originalUser.email
+            : this.originalUser,
         });
         // Load user data after registration
         if (databaseStore.userData) {
