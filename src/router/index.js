@@ -15,10 +15,12 @@ export default route(function () {
     const useDatabase = useDatabaseStore(); // Obtén el store del usuario donde almacenas la info de autenticación
     const auth = getAuth();
     const user = auth.currentUser;
-
     if (to.meta.requiresAuth) {
       if (user) {
-        if (to.meta.role && to.meta.role !== useDatabase.userData?.role) {
+        if (
+          to.meta.role_admin === useDatabase.userData?.role ||
+          to.meta.role === useDatabase.userData?.role
+        ) {
           next();
         } else {
           next("/");

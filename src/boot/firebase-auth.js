@@ -7,6 +7,7 @@ import {
 } from "firebase/auth";
 import { useUserStore } from "src/stores/users";
 import { useDatabaseStore } from "src/stores/database"; // Import database store
+import { data } from "autoprefixer";
 
 export default boot(async ({ app, store }) => {
   const auth = getAuth();
@@ -20,11 +21,9 @@ export default boot(async ({ app, store }) => {
 
   onAuthStateChanged(auth, async (user) => {
     if (user) {
+      databaseStore.userData = user;
       // Fetch user data from Firestore based on UID
-      console.log("empezo carga");
-
       await databaseStore.fetchUserData(user.uid);
-      console.log("terminao carga");
     } else if (!user) {
       databaseStore.userData = null; // Clear user data on logout
     }

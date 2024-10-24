@@ -47,8 +47,18 @@ const routes = [
       {
         path: "agregar-usuario",
         component: () => import("src/components/Admin/Users/AddUser.vue"),
-        beforeEnter: requireAuth,
-        meta: { role: "admin" },
+        meta: { requiresAuth: true, role_admin: "admin" },
+      },
+      {
+        path: "solicitud-inspeccion",
+        component: () => import("src/pages/RequestInspection.vue"),
+        meta: { requiresAuth: true, role_admin: "admin", role: "user" },
+      },
+
+      {
+        path: "calendario-inspecciones",
+        component: () => import("src/pages/InspectionCalendar.vue"),
+        meta: { requiresAuth: true, role_admin: "admin", role: "inspector" },
       },
     ],
   },

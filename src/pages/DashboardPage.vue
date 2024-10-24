@@ -1,49 +1,44 @@
 <!-- eslint-disable vue/first-attribute-linebreak -->
 <template>
   <div class="q-pa-xl column items-start justify-start">
-    <h4 class="title text-center">¡Hola {{ userData?.name }}!</h4>
+    <h4 class="title text-center">¡Hola {{ useDatabase.userData?.name }}!</h4>
     <p class="subtitle q-mt-md">Administra y gestiona tu información en cualquier momento.</p>
   </div>
   <section v-if="loaded" class="q-px-xl row wrap items-start justify-start q-gutter-md">
-
-    <CardsHome v-for="card in visibleCards" :key="card.id" :card-img="card.img" :card-title="card.title"
+    <CardsHome v-for="card in visibleCards" :key="card.id" :card-img="card.icon" :card-title="card.title"
       :card-text="card.text" :card-url="card.url" :card-btn="card.btn" />
-
-
   </section>
 </template>
 
 <script setup>
 import CardsHome from "src/components/Dashboard/CardsHome.vue";
 import { useDatabaseStore } from "src/stores/database";
-import { ref, computed, watch, onMounted } from "vue";
+import { ref, onMounted } from "vue";
 
 const useDatabase = useDatabaseStore();
-const userData = computed(() => useDatabase.userData)
 const userRole = ref(null)
 const visibleCards = ref([])
 const loaded = ref(false)
 
 const rolePermissions = {
-  admin: ['account', 'users'],
+  admin: ['account', 'users', 'requestsInspection', 'calendar'],
   supervisor: ['account'],
-  inspector: ['account'],
-  user: ['account'],
+  inspector: ['account', 'calendar'],
+  user: ['account', 'requestsInspection'],
 };
 
 const allCards = [
-  { id: 'account', img: 'fa-solid fa-user', title: 'Datos personaless', text: 'Actualiza tu información cuando lo necesites.', url: 'mi-cuenta', btn: 'Ver perfil' },
-  { id: 'users', img: 'fa-solid fa-users', title: 'Agregar Inspector', text: 'Agrega los inspectores o supervisores de tu empresa.', url: 'agregar-usuario', btn: 'Agregar' },
+  { id: 'account', icon: 'fa-solid fa-user', title: 'Datos personaless', text: 'Actualiza tu información cuando lo necesites.', url: 'mi-cuenta', btn: 'Ver perfil' },
+  { id: 'users', icon: 'fa-solid fa-users', title: 'Agregar Inspector', text: 'Agrega los inspectores o supervisores de tu empresa.', url: 'agregar-usuario', btn: 'Agregar' },
+  { id: 'requestsInspection', icon: 'fa-solid fa-file-lines', title: 'Solicitar Inspección', text: 'Solicita una inspección para tu propiedad.', url: 'solicitud-inspeccion', btn: 'Ingresar' },
+  { id: 'calendar', icon: 'fa-solid fa-calendar-days', title: 'Calendario', text: 'Administra tus fechas de inspección.', url: 'calendario-inspecciones', btn: 'Ver agenda' },
+
 ];
 
-watch(userData, (val) => {
-  userRole.value = userData.value?.role
-  visibleCards.value = allCards.filter(card => rolePermissions[userRole.value]?.includes(card.id));
-  loaded.value = true
-})
 
-onMounted(() => {
-  userRole.value = userData.value?.role
+onMounted(async () => {
+  await useDatabase.fetchUserData(useDatabase.userData.uid);
+  userRole.value = useDatabase.userData.role
   visibleCards.value = allCards.filter(card => rolePermissions[userRole.value]?.includes(card.id));
   loaded.value = true
 })

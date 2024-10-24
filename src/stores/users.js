@@ -12,6 +12,7 @@ import {
 import { doc, getDoc } from "firebase/firestore";
 import { useDatabaseStore } from "./database";
 import { useEmailStore } from "./email";
+import { useCalendarStore } from "./calendar";
 
 export const useUserStore = defineStore("user", {
   state: () => ({
@@ -59,6 +60,7 @@ export const useUserStore = defineStore("user", {
     ) {
       const databaseStore = useDatabaseStore();
       const emailStore = useEmailStore();
+      const calendarStore = useCalendarStore();
       this.loading = true;
       this.error = null;
       try {
@@ -107,6 +109,9 @@ export const useUserStore = defineStore("user", {
             admin: this.originalUser.name,
             contact: this.originalUser.email,
           });
+          await calendarStore.createDefaultAvailability(
+            userCredential.user.uid
+          );
           await databaseStore.fetchUserData(this.originalUser.uid);
           this.originalUser = null;
           router.push(router.currentRoute.value.path);

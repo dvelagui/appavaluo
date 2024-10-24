@@ -1,58 +1,17 @@
 <!-- eslint-disable vue/first-attribute-linebreak -->
 <template>
   <div v-ripple="true" class="column justify-between items-center">
-    <q-list>
-      <AvatarAccount />
-      <q-item :disable="plan" class="q-mt-md" clickable @click="router.push('/')">
+    <q-list v-if="loaded">
+      <AvatarAccount class="q-mb-md" />
+      <q-item v-for="link in visibleLinks" :key="link.id" clickable @click="router.push(link.url)">
         <q-item-section avatar>
-          <q-icon name="fa-sharp fa-solid fa-house" />
+          <q-icon :name="link.icon" />
         </q-item-section>
         <q-item-section>
-          <q-item-label>Inicio</q-item-label>
-        </q-item-section>
-      </q-item>
-      <q-item :disable="plan" clickable @click="router.push(`/mi-cuenta`)">
-        <q-item-section avatar>
-          <q-icon name="fa-solid fa-user" />
-        </q-item-section>
-        <q-item-section>
-          <q-item-label>Perfil</q-item-label>
-        </q-item-section>
-      </q-item>
-      <q-item :disable="plan" clickable @click="reportes()">
-        <q-item-section avatar>
-          <q-icon name="fa-solid fa-file-lines" />
-        </q-item-section>
-        <q-item-section>
-          <q-item-label>Reportes</q-item-label>
-        </q-item-section>
-      </q-item>
-      <q-item :disable="plan" clickable @click="router.push(`/avaluo`)">
-        <q-item-section avatar>
-          <q-icon name="fa-regular fa-newspaper" />
-        </q-item-section>
-        <q-item-section>
-          <q-item-label>Solicitar Avaluo</q-item-label>
-        </q-item-section>
-      </q-item>
-      <q-item v-if="useDatabase.userData?.rol != 'agente' && useDatabase.userData?.typeUser === 'empresas'"
-        :disable="plan" clickable @click="router.push(`/administracion`)">
-        <q-item-section avatar>
-          <q-icon name="fa-solid fa-gear" />
-        </q-item-section>
-        <q-item-section>
-          <q-item-label>Administración</q-item-label>
+          <q-item-label>{{ link.title }}</q-item-label>
         </q-item-section>
       </q-item>
 
-      <q-item clickable @click="router.push(`/PQRS`)">
-        <q-item-section avatar>
-          <q-icon name="fa-regular fa-lightbulb" />
-        </q-item-section>
-        <q-item-section>
-          <q-item-label>PQRS</q-item-label>
-        </q-item-section>
-      </q-item>
     </q-list>
     <div class="col q-my-xl">
       <a @click="logOut">Cerrar Sesión <q-icon name="fa-solid fa-arrow-right-to-bracket" /></a>
@@ -63,17 +22,30 @@
 <script setup>
 import AvatarAccount from './Account/AvatarAccount.vue';
 import { useDatabaseStore } from "src/stores/database";
-//import { reportDatabaseStore } from "src/stores/reports";
-import { useUserStore } from 'src/stores/users';
+import { useUserStore } from "src/stores/users";
 import { useRouter } from 'vue-router';
-import { ref, watch } from "vue";
+import { ref, computed, watch, onMounted } from "vue";
 
-const useDatabase = useDatabaseStore();
-//const useReportDatabase = reportDatabaseStore()
-const userStore = useUserStore();
+const useDatabase = useDatabaseStore()
+const userStore = useUserStore()
 const router = useRouter();
-const plan = ref(false);
+const userRole = ref(null)
+const visibleLinks = ref([])
+const loaded = ref(false)
 
+const rolePermissions = {
+  admin: ['home', 'profile', 'requestsInspection', 'calendar'],
+  supervisor: ['home', 'profile'],
+  inspector: ['home', 'profile', 'calendar'],
+  user: ['home', 'profile', 'requestsInspection'],
+};
+
+const allLinks = [
+  { id: 'home', icon: 'fa-solid fa-user', title: 'Inicio', url: '/' },
+  { id: 'profile', icon: 'fa-solid fa-users', title: 'Perfil', url: '/mi-cuenta' },
+  { id: 'requestsInspection', icon: 'fa-solid fa-file-lines', title: 'Solicitar Inspección', url: '/solicitud-inspeccion' },
+  { id: 'calendar', icon: 'fa-solid fa-calendar-days', title: 'Calendario', url: '/calendario-inspecciones' },
+];
 const logOut = async () => {
   try {
     await userStore.logout()  // Assuming userStore has a logout method implemented
@@ -83,6 +55,12 @@ const logOut = async () => {
   }
 }
 
+onMounted(async () => {
+  await useDatabase.fetchUserData(useDatabase.userData.uid);
+  userRole.value = useDatabase.userData.role
+  visibleLinks.value = allLinks.filter(link => rolePermissions[userRole.value]?.includes(link.id));
+  loaded.value = true
+})
 
 </script>
 

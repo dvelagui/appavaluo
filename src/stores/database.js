@@ -3,13 +3,13 @@ import {
   doc,
   updateDoc,
   onSnapshot,
+  addDoc,
   setDoc,
   getDoc,
   getDocs,
   collection,
   query,
   where,
-  serverTimestamp,
 } from "firebase/firestore";
 import { db, auth } from "src/boot/firebase"; // Firestore configuration
 
@@ -122,6 +122,83 @@ export const useDatabaseStore = defineStore("database", {
         }
       });
       return inspectors;
+    },
+    async addInspectionRequest(request) {
+      try {
+        const docRef = await addDoc(
+          collection(db, "inspection_requests"),
+          request
+        );
+        return docRef.id;
+      } catch (e) {
+        console.error("Error adding document: ", e);
+        throw e;
+      }
+    },
+    async saveAvailability(availability) {
+      try {
+        const inspectorId = this.userData.uid;
+        const availabilityRef = collection(db, "inspector_availability");
+
+        // Buscar si ya existe disponibilidad para este inspector
+        const q = query(
+          availabilityRef,
+          where("inspectorId", "==", inspectorId)
+        );
+        const querySnapshot = await getDocs(q);
+
+        let availabilityDoc = null;
+
+        // Si existe, obtenemos el documento
+        if (!querySnapshot.empty) {
+          querySnapshot.forEach((doc) => {
+            availabilityDoc = { id: doc.id, ...doc.data() };
+          });
+        }
+
+        if (availabilityDoc) {
+          // Actualizar el documento existente
+          const updatedAvailability = [...availabilityDoc.slots];
+
+          // Recorrer las horas seleccionadas y actualizar o agregar nuevas
+          availability.forEach(({ date, time, status }) => {
+            const index = updatedAvailability.findIndex(
+              (slot) => slot.date === date && slot.time === time
+            );
+
+            if (index === -1) {
+              // Si no existe, agregar la nueva disponibilidad
+              updatedAvailability.push({ date, time, status });
+            } else {
+              // Si ya existe, actualizar el estado
+              updatedAvailability[index].status = status;
+            }
+          });
+
+          // Actualizar el documento en Firestore
+          await updateDoc(
+            doc(db, "inspector_availability", availabilityDoc.id),
+            {
+              slots: updatedAvailability,
+            }
+          );
+        } else {
+          // Si no existe, crear un nuevo documento con la disponibilidad
+          await addDoc(availabilityRef, {
+            inspectorId: inspectorId,
+            slots: availability.map(({ date, time, status }) => ({
+              date,
+              time,
+              status,
+            })),
+          });
+        }
+
+        console.log("Disponibilidad guardada con éxito");
+      } catch (error) {
+        console.error("Error al guardar la disponibilidad: ", error);
+        throw error; // Para capturarlo en el componente
+      }
     },
   },
 });
